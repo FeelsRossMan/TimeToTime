@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:layout_margin="8dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/teal_200">
+
+        <ImageView
+            android:id="@+id/card_move_icon"
+            android:layout_width="104dp"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/hold_to_move"
+            android:padding="20dp"
+            tools:srcCompat="@drawable/ic_baseline_menu_24" />
+        <EditText
+            android:id="@+id/running_timer_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:hint="@string/empty_time"
+            android:textAppearance="?attr/textAppearanceHeadline3"
+            android:padding="16dp"
+            android:inputType="time"
+            android:autofillHints="timer time" />
+        <EditText
+            android:id="@+id/running_timer_repeats_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:hint="@string/zero"
+            android:padding="16dp"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            android:inputType="number"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
