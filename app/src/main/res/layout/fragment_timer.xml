@@ -4,14 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FirstFragment">
+    tools:context=".TimerFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/timer_recycler_view"
+    <ScrollView
+        android:id="@+id/timer_list_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/timer_list_linear_layout_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="@dimen/fab_margin"/>
+    </ScrollView>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/new_timer_floating_action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -19,5 +27,5 @@
         android:layout_marginBottom="@dimen/fab_margin"
         android:layout_marginEnd="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_baseline_access_time_filled_24"
-        />
+        android:contentDescription="@string/add_new_timer" />
 </androidx.constraintlayout.widget.ConstraintLayout>
