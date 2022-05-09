@@ -14,6 +14,8 @@ import com.example.timetotime.databinding.FragmentTimerBinding
  */
 class TimerFragment : Fragment() {
 
+
+
     private var _binding: FragmentTimerBinding? = null
 
     // This property is only valid between onCreateView and
@@ -26,7 +28,10 @@ class TimerFragment : Fragment() {
     ): View? {
         _binding = FragmentTimerBinding.inflate(inflater, container, false)
 
+
+        //TODO: modify once the associated functions are finished
         _binding!!.newTimerFloatingActionButton.setOnClickListener { newTimerCard() }
+        _binding!!.startStopFloatingActionButton.setOnClickListener { startTimer() }
 
         return binding.root
 
@@ -34,7 +39,7 @@ class TimerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        newTimerCard()
     }
 
     override fun onDestroyView() {
@@ -42,6 +47,13 @@ class TimerFragment : Fragment() {
         _binding = null
     }
 
+    //TODO: Implement the actual start timer functionality
+    private fun startTimer() {
+        val timerDialog = TimerDialogFragment()
+        timerDialog.show(childFragmentManager, TimerDialogFragment.Tag)
+    }
+
+    //TODO: Use the dialog box to create the initial parameters for the timer
     private fun newTimerCard() {
         val inflater = LayoutInflater.from(context)
         val layoutParams = LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
