@@ -70,26 +70,22 @@ class TimerFragment : Fragment() {
 
 
         // Inflate a new timer view using the timer_card.xml layout file
-
         val layoutParams = LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         layoutParams.bottomMargin = resources.getDimensionPixelOffset(R.dimen.fab_margin)
         val newTimerView : View = layoutInflater.inflate(R.layout.timer_card, null)
         newTimerView.layoutParams = layoutParams
         with(binding.timerListLinearLayoutView) {
             this.addView(newTimerView,this.childCount-1)
+
+            // Update the values for the time and the interval
+            // I'm not sure why, but this function resets all to the default, so i just re-update all of them
             for (index in 0 until childCount) {
                 val timerCard = this.getChildAt(index)
                 val timerText: TextView = timerCard.findViewById(R.id.running_timer_text)
-
+                val intervalText: TextView = timerCard.findViewById(R.id.running_timer_repeats_text)
                 //TODO: Setup a function that takes the int value and converts it to a time string
                 timerText.text = timerTimeInitList[index].toString()
-            }
-            for (index in 0 until childCount) {
-                val timerCard = this.getChildAt(index)
-                val timerText: TextView = timerCard.findViewById(R.id.running_timer_repeats_text)
-
-                //TODO: Setup a function that takes the int value and converts it to a time string
-                timerText.text = timerIntervalInitList[index].toString()
+                intervalText.text = timerIntervalInitList[index].toString()
             }
         }
     }
@@ -108,8 +104,9 @@ class TimerFragment : Fragment() {
                 val timerTime = timeET.text.toString().toIntOrNull()
                 val intervalTime = intervalET.text.toString().toIntOrNull()
                 Log.d(TAG,"${timeET.text}")
-                if (timerTime == null || intervalTime == null) {
 
+                // Check to see if the dialog box is filled out
+                if (timerTime == null || intervalTime == null) {
                     if (timerTime == null && intervalTime != null){
                         Toast.makeText(context, getString(R.string.no_time_set),Toast.LENGTH_SHORT).show()
                     } else if (timerTime != null && intervalTime == null) {
@@ -119,12 +116,15 @@ class TimerFragment : Fragment() {
                     }
                 }
 
+                //Add the new values to the init list, and create a new timer card
                 else {
                     timerTimeInitList.add(timerTime)
                     timerIntervalInitList.add(intervalTime)
                     newTimerCard(timerTime, intervalTime)
                 }
             })
+
+            // Close the dialog box without doing anything
             setNegativeButton("Cancel", DialogInterface.OnClickListener{ dialog, id ->
 
                 dialog.dismiss()})
