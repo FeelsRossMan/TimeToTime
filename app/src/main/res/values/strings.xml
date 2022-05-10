@@ -15,4 +15,7 @@
     <string name="add_new_timer">Add new timer</string>
     <string name="start">Start</string>
     <string name="reset">Reset</string>
+    <string name="no_time_set">You forgot to set a time!</string>
+    <string name="no_interval_set">You forgot to set an interval!</string>
+    <string name="nothing_set">You didn\'t set anything!</string>
 </resources>

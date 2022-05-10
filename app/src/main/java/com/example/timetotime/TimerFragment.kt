@@ -11,6 +11,7 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.timetotime.databinding.FragmentTimerBinding
 
@@ -22,7 +23,8 @@ const val TAG = "TimerFragment"
 
 class TimerFragment : Fragment() {
 
-    private var timerInitList: MutableList<Int> = mutableListOf(0)
+    private var timerTimeInitList: MutableList<Int> = mutableListOf(0)
+    private var timerIntervalInitList: MutableList<Int> = mutableListOf(0)
 
 
     private var _binding: FragmentTimerBinding? = null
@@ -80,7 +82,14 @@ class TimerFragment : Fragment() {
                 val timerText: TextView = timerCard.findViewById(R.id.running_timer_text)
 
                 //TODO: Setup a function that takes the int value and converts it to a time string
-                timerText.text = timerInitList[index].toString()
+                timerText.text = timerTimeInitList[index].toString()
+            }
+            for (index in 0 until childCount) {
+                val timerCard = this.getChildAt(index)
+                val timerText: TextView = timerCard.findViewById(R.id.running_timer_repeats_text)
+
+                //TODO: Setup a function that takes the int value and converts it to a time string
+                timerText.text = timerIntervalInitList[index].toString()
             }
         }
     }
@@ -90,20 +99,30 @@ class TimerFragment : Fragment() {
         val inflater = layoutInflater
         val dialogLayout = inflater.inflate(R.layout.new_timer_dialog, null)
 
-        val editText = dialogLayout.findViewById<EditText>(R.id.dialog_timer_time_edit_text)
+        val timeET = dialogLayout.findViewById<EditText>(R.id.dialog_timer_time_edit_text)
+        val intervalET = dialogLayout.findViewById<EditText>(R.id.dialog_timer_interval_edit_text)
 
 
         with(builder) {
             setPositiveButton("Set", DialogInterface.OnClickListener{ dialog, id ->
-                val textInt = editText.text.toString().toIntOrNull()
-                Log.d(TAG,"${editText.text}")
-                if (textInt == null) {
+                val timerTime = timeET.text.toString().toIntOrNull()
+                val intervalTime = intervalET.text.toString().toIntOrNull()
+                Log.d(TAG,"${timeET.text}")
+                if (timerTime == null || intervalTime == null) {
 
-                    dialog.dismiss()
+                    if (timerTime == null && intervalTime != null){
+                        Toast.makeText(context, getString(R.string.no_time_set),Toast.LENGTH_SHORT).show()
+                    } else if (timerTime != null && intervalTime == null) {
+                        Toast.makeText(context, getString(R.string.no_interval_set),Toast.LENGTH_SHORT).show()
+                    } else if (timerTime == null && intervalTime == null) {
+                        Toast.makeText(context, getString(R.string.nothing_set),Toast.LENGTH_SHORT).show()
+                    }
                 }
+
                 else {
-                    timerInitList.add(textInt)
-                    newTimerCard(textInt)
+                    timerTimeInitList.add(timerTime)
+                    timerIntervalInitList.add(intervalTime)
+                    newTimerCard(timerTime, intervalTime)
                 }
             })
             setNegativeButton("Cancel", DialogInterface.OnClickListener{ dialog, id ->
