@@ -1,7 +1,7 @@
 package com.example.timetotime
 
 import android.app.AlertDialog
-import android.content.DialogInterface
+import android.content.*
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -33,7 +33,9 @@ class TimerFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-
+    private var timerStarted = false
+    private lateinit var serviceIntent: Intent
+    private var time = 0.0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,13 +46,27 @@ class TimerFragment : Fragment() {
 
         //TODO: modify once the associated functions are finished
         _binding!!.newTimerFloatingActionButton.setOnClickListener { newTimerDialog() }
-        _binding!!.startStopFloatingActionButton.setOnClickListener { startTimer() }
+        _binding!!.startStopFloatingActionButton.setOnClickListener {
+            if (!timerStarted) startTimer()
+            else stopTimer()
+        }
+
+        serviceIntent = Intent(context, TimerService::class.java)
+
+
+        activity?.registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
 
         return binding.root
-
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    private val updateTime: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            time = intent.getDoubleExtra(TimerService.TIME_EXTRA, 0.0)
+
+        }
+    }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         newTimerCard()
     }
@@ -62,11 +78,20 @@ class TimerFragment : Fragment() {
 
     //TODO: Implement the actual start timer functionality
     private fun startTimer() {
+        serviceIntent.putExtra(TimerService.TIME_EXTRA, time)
+        activity?.startService(serviceIntent)
+        timerStarted = true
+        binding.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_pause_24)
+    }
 
+    private fun stopTimer() {
+        activity?.stopService(serviceIntent)
+        binding.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+        timerStarted = false
     }
 
     //TODO: Use the dialog box to create the initial parameters for the timer
-    private fun newTimerCard(initialTime: Int = 0, initialInterval: Int = 0) {
+    private fun newTimerCard() {
 
 
         // Inflate a new timer view using the timer_card.xml layout file
@@ -120,7 +145,7 @@ class TimerFragment : Fragment() {
                 else {
                     timerTimeInitList.add(timerTime)
                     timerIntervalInitList.add(intervalTime)
-                    newTimerCard(timerTime, intervalTime)
+                    newTimerCard()
                 }
             })
 
@@ -132,4 +157,15 @@ class TimerFragment : Fragment() {
             show()
         }
     }
+    private fun getTimeStringFromDouble(time: Int) : String{
+        val resultInt = time
+        val hours = resultInt % 86400 / 3600
+        val minutes = resultInt % 86400 % 3600 / 60
+        val seconds = resultInt % 86400 % 3600 % 60
+
+
+        return makeTimeString(hours, minutes, seconds)
+    }
+
+    private fun makeTimeString(hours: Int, minutes: Int, seconds: Int): String = String.format("%02d:%02d:%02d", hours, minutes, seconds)
 }
