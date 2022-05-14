@@ -45,6 +45,7 @@ class TimerFragment : Fragment() {
             if (!timerModel.timerStarted) startTimer()
             else stopTimer()
         }
+        // Set the floating action buttons based on if the timer is running or not
         if (timerModel.timerStarted) _binding!!.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_pause_24)
         else _binding!!.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
 
@@ -124,6 +125,8 @@ class TimerFragment : Fragment() {
                 //TODO: Setup a function that takes the int value and converts it to a time string
                 if (index == timerModel.activeTimer) {
                     timerText.text = getTimeStringFromInt(timerModel.activeTimerSecondsRemaining)
+                } else if (index < timerModel.activeTimer) {
+                    timerText.text = getTimeStringFromInt(0)
                 } else {
                     timerText.text = getTimeStringFromInt(timerModel.timerTimeInitList[index])
                     intervalText.text = timerModel.timerIntervalInitList[index].toString()

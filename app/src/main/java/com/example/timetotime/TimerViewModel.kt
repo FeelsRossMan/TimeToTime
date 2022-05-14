@@ -46,4 +46,10 @@ class TimerViewModel: ViewModel() {
         _timerTimeInitList.add(timeInSeconds)
         _timerIntervalInitList.add(newInterval ?: 1)
     }
+
+    fun resetAllTimersToInit() {
+        _activeTimer = 0
+        timerStarted = false
+        activeTimerSecondsRemaining = activeTimerSecondsTotal
+    }
 }
