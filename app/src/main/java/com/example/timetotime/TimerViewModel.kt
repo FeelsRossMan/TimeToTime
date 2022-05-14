@@ -9,6 +9,22 @@ class TimerViewModel: ViewModel() {
     val timerTimeInitList: List<Int>
         get() = _timerTimeInitList
 
+    // holds the init list for all the timer intervals
+    private var _timerIntervalInitList:  MutableList<Int> = mutableListOf(0)
+    val timerIntervalInitList: List<Int>
+        get() = _timerIntervalInitList
+
+    // which timer is active?
+    private var _activeTimer = 0
+    val activeTimer: Int
+        get() {
+            if ((_activeTimer + 1) > _timerTimeInitList.size) return 0
+            return _activeTimer
+        }
+
+    // is the timer running?
+    var timerStarted = false
+
     val totalSeconds: Int
         get() {
             var totalTime = 0
@@ -16,21 +32,13 @@ class TimerViewModel: ViewModel() {
             return totalTime
         }
 
-    val activeTimerSeconds: Int
+    val activeTimerSecondsTotal: Int
         get() = _timerTimeInitList[_activeTimer]
 
-    // holds the init list for all the timer intervals
-    private var _timerIntervalInitList:  MutableList<Int> = mutableListOf(0)
-    val timerIntervalInitList: List<Int>
-        get() = _timerIntervalInitList
+    var activeTimerSecondsRemaining: Int = activeTimerSecondsTotal
 
-    // which timer is active?
-    private var _activeTimer = 1
-
-    val activeTimer: Int
-        get() = _activeTimer
-
-
+    val activeTimerTimeElapsed: Int
+        get() = activeTimerSecondsTotal-activeTimerSecondsRemaining
 
     // adds the new timer values into the init list. If one of the time values isn't passed it'll just use 0
     fun addNewTimer(newTimeMin: Int? = 0, newTimeSec: Int? = 0, newInterval: Int? = 1) {

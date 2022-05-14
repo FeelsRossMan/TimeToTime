@@ -19,24 +19,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New Time: "
+            style="?attr/textAppearanceHeadline5"
             />
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/dialog_timer_time_edit_text_minutes"
             android:hint="00"
-            android:inputType="number"/>
+            android:inputType="number"
+            style="?attr/textAppearanceHeadline5"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
+            style="?attr/textAppearanceHeadline5"
             />
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/dialog_timer_time_edit_text_seconds"
             android:hint="00"
-            android:inputType="number"/>
+            android:inputType="number"
+            style="?attr/textAppearanceHeadline5"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,12 +51,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Repeats: "
+            style="?attr/textAppearanceHeadline5"
             />
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/dialog_timer_interval_edit_text"
             android:hint="0"
-            android:inputType="number"/>
+            android:inputType="number"
+            style="?attr/textAppearanceHeadline5"/>
     </LinearLayout>
 </LinearLayout>

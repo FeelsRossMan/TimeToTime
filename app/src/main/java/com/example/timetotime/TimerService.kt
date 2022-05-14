@@ -6,7 +6,7 @@ import android.os.IBinder
 import java.util.*
 
 class TimerService : Service(){
-    override fun onBind(p0: Intent?): IBinder? = null
+    override fun onBind(intent: Intent?): IBinder? = null
 
     private val timer = Timer()
 
