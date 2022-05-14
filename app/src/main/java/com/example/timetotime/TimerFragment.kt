@@ -50,7 +50,6 @@ class TimerFragment : Fragment() {
             else stopTimer()
         }
 
-
         serviceIntent = Intent(context, TimerService::class.java)
         activity?.registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
 
@@ -112,8 +111,8 @@ class TimerFragment : Fragment() {
                 val intervalText: TextView = timerCard.findViewById(R.id.running_timer_repeats_text)
 
                 //TODO: Setup a function that takes the int value and converts it to a time string
-                timerText.text = timerModel.timerTimeInitList.value?.get(index).toString()
-                intervalText.text = timerModel.timerIntervalInitList.value?.get(index).toString()
+                timerText.text = timerModel.timerTimeInitList[index].toString()
+                intervalText.text = timerModel.timerIntervalInitList[index].toString()
             }
         }
     }
@@ -161,6 +160,15 @@ class TimerFragment : Fragment() {
             setView(dialogLayout)
             show()
         }
+    }
+    private fun getTimeStringFromDouble(time: Int) : String{
+        val resultInt = time
+        val hours = resultInt % 86400 / 3600
+        val minutes = resultInt % 86400 % 3600 / 60
+        val seconds = resultInt % 86400 % 3600 % 60
+        fun makeTimeString(hours: Int, minutes: Int, seconds: Int): String = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+
+        return makeTimeString(hours, minutes, seconds)
     }
 
 }

@@ -5,27 +5,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class TimerViewModel: ViewModel() {
-    private var _timerTimeInitList: MutableLiveData<List<Int>> = MutableLiveData(listOf(0))
-    private var _timerIntervalInitList: MutableLiveData<List<Int>> = MutableLiveData(listOf(0))
+    private var _timerTimeInitList: MutableList<Int> = mutableListOf(0)
+    val timerTimeInitList: List<Int>
+        get() = _timerTimeInitList
 
-    val timerTimeInitList: LiveData<List<Int>> = _timerTimeInitList
-    val timerIntervalInitList: LiveData<List<Int>> = _timerTimeInitList
+    private var _timerIntervalInitList:  MutableList<Int> = mutableListOf(0)
+    val timerIntervalInitList: List<Int>
+        get() = _timerIntervalInitList
+
+
 
     fun addNewTimer(newTime: Int, newInterval: Int) {
-        _timerTimeInitList.value = _timerTimeInitList.value?.plus(newTime) ?:  listOf(newTime)
-        _timerIntervalInitList.value = _timerIntervalInitList.value?.plus(newTime) ?: listOf(newInterval)
+        _timerTimeInitList.add(newTime)
+        _timerIntervalInitList.add(newInterval)
     }
 
 
     // Converts from a time int in milliseconds to a time string
-    private fun getTimeStringFromDouble(time: Int) : String{
-        val resultInt = time
-        val hours = resultInt % 86400 / 3600
-        val minutes = resultInt % 86400 % 3600 / 60
-        val seconds = resultInt % 86400 % 3600 % 60
-        fun makeTimeString(hours: Int, minutes: Int, seconds: Int): String = String.format("%02d:%02d:%02d", hours, minutes, seconds)
 
-        return makeTimeString(hours, minutes, seconds)
-    }
 
 }
