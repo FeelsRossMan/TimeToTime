@@ -14,7 +14,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.example.timetotime.databinding.FragmentTimerBinding
+import java.util.*
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -49,7 +52,38 @@ class TimerFragment : Fragment() {
             if (!timerStarted) startTimer()
             else stopTimer()
         }
+        _binding!!.resetTimerFloatingActionButton.setOnClickListener {timerModel.addASecondToAll() }
 
+        val timeObserver = Observer<List<Int>> { theInt ->
+            with(binding.timerListLinearLayoutView) {
+                // Update the values for the time and the interval
+                // I'm not sure why, but this function resets all to the default, so i just re-update all of them
+                for (index in 0 until childCount) {
+                    val timerCard = this.getChildAt(index)
+                    val timerText: TextView = timerCard.findViewById(R.id.running_timer_text)
+                    Log.d(TAG, "theInt.size: ${theInt.size}")
+                    //TODO: Setup a function that takes the int value and converts it to a time string
+                    timerText.text = theInt[index].toString()
+                    Log.d(TAG, "Time Changed")
+                }
+            }
+        }
+        val intervalObserver = Observer<List<Int>> { theInt ->
+            with(binding.timerListLinearLayoutView) {
+                // Update the values for the time and the interval
+                // I'm not sure why, but this function resets all to the default, so i just re-update all of them
+                for (index in 0 until childCount) {
+                    val timerCard = this.getChildAt(index)
+                    val intervalText: TextView = timerCard.findViewById(R.id.running_timer_repeats_text)
+                    Log.d(TAG, "Inteval Observed")
+                    //TODO: Setup a function that takes the int value and converts it to a time string
+                    intervalText.text = theInt[index].toString()
+                }
+            }
+        }
+
+        timerModel.timerTimeInitList.observe(viewLifecycleOwner, timeObserver)
+        timerModel.timerIntervalInitList.observe(viewLifecycleOwner, intervalObserver)
 
         serviceIntent = Intent(context, TimerService::class.java)
         activity?.registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
@@ -65,7 +99,6 @@ class TimerFragment : Fragment() {
         _binding = null
     }
 
-
     // get the current time from the TimerService
     private val updateTime: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -73,10 +106,6 @@ class TimerFragment : Fragment() {
 
         }
     }
-
-
-
-
 
     //TODO: Implement the actual start timer functionality
     private fun startTimer() {
@@ -102,8 +131,11 @@ class TimerFragment : Fragment() {
         val newTimerView : View = layoutInflater.inflate(R.layout.timer_card, null)
         newTimerView.layoutParams = layoutParams
         with(binding.timerListLinearLayoutView) {
-            this.addView(newTimerView,this.childCount-1)
-
+            if (childCount == 0) {
+                this.addView(newTimerView,this.childCount)
+            } else {
+                this.addView(newTimerView, this.childCount - 1)
+            }
             // Update the values for the time and the interval
             // I'm not sure why, but this function resets all to the default, so i just re-update all of them
             for (index in 0 until childCount) {
@@ -117,8 +149,6 @@ class TimerFragment : Fragment() {
             }
         }
     }
-
-
 
     private fun newTimerDialog() {
         // Pop up the TimerDialogFragment dialog box to input new timer values
@@ -164,3 +194,4 @@ class TimerFragment : Fragment() {
     }
 
 }
+
