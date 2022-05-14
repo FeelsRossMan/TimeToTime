@@ -73,10 +73,7 @@ class TimerFragment : Fragment() {
         }
     }
 
-
-
-
-
+    // function called when the start button is pushed
     //TODO: Implement the actual start timer functionality
     private fun startTimer() {
         serviceIntent.putExtra(TimerService.TIME_EXTRA, time)
@@ -85,13 +82,14 @@ class TimerFragment : Fragment() {
         binding.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_pause_24)
     }
 
+    // function called when the pause button is pushed
     private fun stopTimer() {
         activity?.stopService(serviceIntent)
         binding.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
         timerStarted = false
     }
 
-    //TODO: Use the dialog box to create the initial parameters for the timer
+    // create a new timer card
     private fun newTimerCard() {
 
 
@@ -102,6 +100,13 @@ class TimerFragment : Fragment() {
         newTimerView.layoutParams = layoutParams
         with(binding.timerListLinearLayoutView) {
             this.addView(newTimerView,this.childCount-1)
+        }
+        resetTimerListValues()
+    }
+
+    // reset the timers to their init values from the timerModel
+    private fun resetTimerListValues() {
+        with(binding.timerListLinearLayoutView) {
 
             // Update the values for the time and the interval
             // I'm not sure why, but this function resets all to the default, so i just re-update all of them
@@ -111,44 +116,49 @@ class TimerFragment : Fragment() {
                 val intervalText: TextView = timerCard.findViewById(R.id.running_timer_repeats_text)
 
                 //TODO: Setup a function that takes the int value and converts it to a time string
-                timerText.text = timerModel.timerTimeInitList[index].toString()
+                timerText.text = getTimeStringFromInt(timerModel.timerTimeInitList[index])
                 intervalText.text = timerModel.timerIntervalInitList[index].toString()
             }
         }
     }
 
-
-
+    // create the dialog popup to enter new timer values
     private fun newTimerDialog() {
         // Pop up the TimerDialogFragment dialog box to input new timer values
         val builder = AlertDialog.Builder(this.context)
         val inflater = layoutInflater
         val dialogLayout = inflater.inflate(R.layout.new_timer_dialog, null)
 
-        val timeET = dialogLayout.findViewById<EditText>(R.id.dialog_timer_time_edit_text)
+        val timeMinutesET = dialogLayout.findViewById<EditText>(R.id.dialog_timer_time_edit_text_minutes)
+        val timeSecondsET = dialogLayout.findViewById<EditText>(R.id.dialog_timer_time_edit_text_seconds)
         val intervalET = dialogLayout.findViewById<EditText>(R.id.dialog_timer_interval_edit_text)
 
 
         with(builder) {
             setPositiveButton("Set", DialogInterface.OnClickListener{ dialog, id ->
-                val timerTime = timeET.text.toString().toIntOrNull()
+                val timerMinTime = timeMinutesET.text.toString().toIntOrNull()
+                val timerSecTime = timeSecondsET.text.toString().toIntOrNull()
                 val intervalTime = intervalET.text.toString().toIntOrNull()
-                Log.d(TAG,"${timeET.text}")
+                Log.d(TAG,"${timeMinutesET.text}")
 
                 // Check to see if the dialog box is filled out
-                if (timerTime == null || intervalTime == null) {
-                    if (timerTime == null && intervalTime != null){
+                if ((timerMinTime == null && timerSecTime == null) || intervalTime == null) {
+
+                    // no time set
+                    if (timerMinTime == null && timerSecTime == null && intervalTime != null){
                         Toast.makeText(context, getString(R.string.no_time_set),Toast.LENGTH_SHORT).show()
-                    } else if (timerTime != null && intervalTime == null) {
+                    // no interval set
+                    } else if ((timerMinTime != null || timerSecTime != null) && intervalTime == null) {
                         Toast.makeText(context, getString(R.string.no_interval_set),Toast.LENGTH_SHORT).show()
-                    } else if (timerTime == null && intervalTime == null) {
+                    // nothing set
+                    } else if (timerMinTime == null && timerSecTime==null && intervalTime == null) {
                         Toast.makeText(context, getString(R.string.nothing_set),Toast.LENGTH_SHORT).show()
                     }
                 }
 
                 //Add the new values to the init list, and create a new timer card
                 else {
-                    timerModel.addNewTimer(timerTime, intervalTime)
+                    timerModel.addNewTimer(timerMinTime, timerSecTime, intervalTime)
                     newTimerCard()
                 }
             })
@@ -161,14 +171,15 @@ class TimerFragment : Fragment() {
             show()
         }
     }
-    private fun getTimeStringFromDouble(time: Int) : String{
-        val resultInt = time
-        val hours = resultInt % 86400 / 3600
-        val minutes = resultInt % 86400 % 3600 / 60
-        val seconds = resultInt % 86400 % 3600 % 60
-        fun makeTimeString(hours: Int, minutes: Int, seconds: Int): String = String.format("%02d:%02d:%02d", hours, minutes, seconds)
 
-        return makeTimeString(hours, minutes, seconds)
+    // convert an int (seconds) to a time string
+    private fun getTimeStringFromInt(time: Int) : String{
+        val resultInt = time
+        val minutes = (resultInt / 60)
+        val seconds = resultInt % 60
+        fun makeTimeString(minutes: Int, seconds: Int): String = String.format("%2d:%02d", minutes, seconds)
+
+        return makeTimeString(minutes, seconds)
     }
 
 }

@@ -15,8 +15,9 @@ class TimerViewModel: ViewModel() {
 
 
 
-    fun addNewTimer(newTime: Int, newInterval: Int) {
-        _timerTimeInitList.add(newTime)
+    fun addNewTimer(newTimeMin: Int? = 0, newTimeSec: Int? = 0, newInterval: Int = 0) {
+        val timeInSeconds = (newTimeMin ?: 0) * 60 + (newTimeSec ?: 0)
+        _timerTimeInitList.add(timeInSeconds)
         _timerIntervalInitList.add(newInterval)
     }
 
