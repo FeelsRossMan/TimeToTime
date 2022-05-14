@@ -135,24 +135,30 @@ class TimerFragment : Fragment() {
 
 
         with(builder) {
-            setPositiveButton("Set", DialogInterface.OnClickListener{ dialog, id ->
+            setPositiveButton("Set") { _, _ ->
                 val timerMinTime = timeMinutesET.text.toString().toIntOrNull()
                 val timerSecTime = timeSecondsET.text.toString().toIntOrNull()
                 val intervalTime = intervalET.text.toString().toIntOrNull()
-                Log.d(TAG,"${timeMinutesET.text}")
+                Log.d(TAG, "${timeMinutesET.text}")
 
                 // Check to see if the dialog box is filled out
                 if ((timerMinTime == null && timerSecTime == null) || intervalTime == null) {
 
                     // no time set
-                    if (timerMinTime == null && timerSecTime == null && intervalTime != null){
-                        Toast.makeText(context, getString(R.string.no_time_set),Toast.LENGTH_SHORT).show()
-                    // no interval set
+                    if (timerMinTime == null && timerSecTime == null && intervalTime != null) {
+                        Toast.makeText(context, getString(R.string.no_time_set), Toast.LENGTH_SHORT)
+                            .show()
+                        // no interval set
                     } else if ((timerMinTime != null || timerSecTime != null) && intervalTime == null) {
-                        Toast.makeText(context, getString(R.string.no_interval_set),Toast.LENGTH_SHORT).show()
-                    // nothing set
-                    } else if (timerMinTime == null && timerSecTime==null && intervalTime == null) {
-                        Toast.makeText(context, getString(R.string.nothing_set),Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            getString(R.string.no_interval_set),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        // nothing set
+                    } else if (timerMinTime == null && timerSecTime == null && intervalTime == null) {
+                        Toast.makeText(context, getString(R.string.nothing_set), Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
 
@@ -161,12 +167,13 @@ class TimerFragment : Fragment() {
                     timerModel.addNewTimer(timerMinTime, timerSecTime, intervalTime)
                     newTimerCard()
                 }
-            })
+            }
 
             // Close the dialog box without doing anything
-            setNegativeButton("Cancel", DialogInterface.OnClickListener{ dialog, id ->
+            setNegativeButton("Cancel") { dialog, _ ->
 
-                dialog.dismiss()})
+                dialog.dismiss()
+            }
             setView(dialogLayout)
             show()
         }
