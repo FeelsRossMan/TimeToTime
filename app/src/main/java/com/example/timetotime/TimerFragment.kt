@@ -16,9 +16,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.timetotime.databinding.FragmentTimerBinding
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
 
 const val TAG = "TimerFragment"
 
@@ -69,7 +66,13 @@ class TimerFragment : Fragment() {
     private val updateTime: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             time = intent.getDoubleExtra(TimerService.TIME_EXTRA, 0.0)
-
+            val remainingTime = timerModel.activeTimerSeconds-time
+            var textTime = 0
+            textTime = if (remainingTime > 0) remainingTime.toInt()
+            else 0
+            binding.timerListLinearLayoutView.getChildAt(timerModel.activeTimer)
+                .findViewById<TextView>(R.id.running_timer_text)
+                .text = getTimeStringFromInt(textTime)
         }
     }
 
