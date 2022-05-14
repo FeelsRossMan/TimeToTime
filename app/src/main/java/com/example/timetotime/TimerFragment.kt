@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.example.timetotime.databinding.FragmentTimerBinding
 
 /**
@@ -23,9 +24,7 @@ const val TAG = "TimerFragment"
 
 class TimerFragment : Fragment() {
 
-    private var timerTimeInitList: MutableList<Int> = mutableListOf(0)
-    private var timerIntervalInitList: MutableList<Int> = mutableListOf(0)
-
+    private val timerModel: TimerViewModel by activityViewModels()
 
     private var _binding: FragmentTimerBinding? = null
 
@@ -51,14 +50,23 @@ class TimerFragment : Fragment() {
             else stopTimer()
         }
 
+
         serviceIntent = Intent(context, TimerService::class.java)
-
-
         activity?.registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
 
         return binding.root
     }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        newTimerCard()
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
+
+    // get the current time from the TimerService
     private val updateTime: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             time = intent.getDoubleExtra(TimerService.TIME_EXTRA, 0.0)
@@ -66,15 +74,9 @@ class TimerFragment : Fragment() {
         }
     }
 
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        newTimerCard()
-    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+
+
 
     //TODO: Implement the actual start timer functionality
     private fun startTimer() {
@@ -108,12 +110,16 @@ class TimerFragment : Fragment() {
                 val timerCard = this.getChildAt(index)
                 val timerText: TextView = timerCard.findViewById(R.id.running_timer_text)
                 val intervalText: TextView = timerCard.findViewById(R.id.running_timer_repeats_text)
+
                 //TODO: Setup a function that takes the int value and converts it to a time string
-                timerText.text = timerTimeInitList[index].toString()
-                intervalText.text = timerIntervalInitList[index].toString()
+                timerText.text = timerModel.timerTimeInitList.value?.get(index).toString()
+                intervalText.text = timerModel.timerIntervalInitList.value?.get(index).toString()
             }
         }
     }
+
+
+
     private fun newTimerDialog() {
         // Pop up the TimerDialogFragment dialog box to input new timer values
         val builder = AlertDialog.Builder(this.context)
@@ -143,8 +149,7 @@ class TimerFragment : Fragment() {
 
                 //Add the new values to the init list, and create a new timer card
                 else {
-                    timerTimeInitList.add(timerTime)
-                    timerIntervalInitList.add(intervalTime)
+                    timerModel.addNewTimer(timerTime, intervalTime)
                     newTimerCard()
                 }
             })
@@ -157,15 +162,5 @@ class TimerFragment : Fragment() {
             show()
         }
     }
-    private fun getTimeStringFromDouble(time: Int) : String{
-        val resultInt = time
-        val hours = resultInt % 86400 / 3600
-        val minutes = resultInt % 86400 % 3600 / 60
-        val seconds = resultInt % 86400 % 3600 % 60
 
-
-        return makeTimeString(hours, minutes, seconds)
-    }
-
-    private fun makeTimeString(hours: Int, minutes: Int, seconds: Int): String = String.format("%02d:%02d:%02d", hours, minutes, seconds)
 }
