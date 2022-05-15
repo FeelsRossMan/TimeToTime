@@ -40,14 +40,17 @@ class TimerFragment : Fragment() {
 
         //TODO: modify once the associated functions are finished
 
-        _binding!!.newTimerFloatingActionButton.setOnClickListener { newTimerDialog() }
+        _binding!!.newTimerFloatingActionButton.setOnClickListener { newTimer() }
         _binding!!.startStopFloatingActionButton.setOnClickListener {
             if (!timerModel.timerStarted) startTimer()
             else stopTimer()
         }
+        _binding!!.resetTimerFloatingActionButton.setOnClickListener { resetTimer() }
         // Set the floating action buttons based on if the timer is running or not
-        if (timerModel.timerStarted) _binding!!.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_pause_24)
-        else _binding!!.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+        if (!timerModel.timerCompleted) {
+            if (timerModel.timerStarted) _binding!!.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_pause_24)
+            else _binding!!.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+        }
 
         serviceIntent = Intent(context, TimerService::class.java)
         activity?.registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
@@ -69,19 +72,27 @@ class TimerFragment : Fragment() {
         override fun onReceive(context: Context, intent: Intent) {
             time = intent.getDoubleExtra(TimerService.TIME_EXTRA, 0.0)
             // Add the remaining time to the timerModel from the service
-            timerModel.activeTimerSecondsRemaining = (timerModel.activeTimerSecondsTotal-time).toInt()
+            //TODO: modify this so that it calculates the correct time to display, even if the app was minimized
+            timerModel.activeTimerSecondsRemaining--
 
-            val textTime = if (timerModel.activeTimerSecondsRemaining > 0) timerModel.activeTimerSecondsRemaining.toInt()
+            var textTime = if (timerModel.activeTimerSecondsRemaining > 0) timerModel.activeTimerSecondsRemaining
             else 0
+            if (textTime < 0) textTime = 0
 
             _binding?.timerListLinearLayoutView?.getChildAt(timerModel.activeTimer)
                 ?.findViewById<TextView>(R.id.running_timer_text)
                 ?.text = getTimeStringFromInt(textTime)
+            _binding?.timerListLinearLayoutView?.getChildAt(timerModel.activeTimer)
+                ?.findViewById<TextView>(R.id.running_timer_repeats_text)
+                ?.text = timerModel.activeIntervalsRemaining.toString()
+            if(timerModel.checkIfTimerFinished()) stopTimer()
         }
     }
 
     // function called when the start button is pushed
     private fun startTimer() {
+        if (timerModel.timerCompleted)
+            return
         serviceIntent.putExtra(TimerService.TIME_EXTRA, timerModel.activeTimerTimeElapsed.toDouble())
         activity?.startService(serviceIntent)
         timerModel.timerStarted = true
@@ -91,7 +102,7 @@ class TimerFragment : Fragment() {
     // function called when the pause button is pushed
     private fun stopTimer() {
         activity?.stopService(serviceIntent)
-        binding.startStopFloatingActionButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+        _binding?.startStopFloatingActionButton?.setImageResource(R.drawable.ic_baseline_play_arrow_24)
         timerModel.timerStarted = false
     }
 
@@ -107,29 +118,29 @@ class TimerFragment : Fragment() {
         with(binding.timerListLinearLayoutView) {
             this.addView(newTimerView,this.childCount-1)
         }
-        resetTimerListValues()
     }
 
     // reset the timers to their init values from the timerModel
-    private fun resetTimerListValues() {
+    private fun setTimersToCurrentValues() {
         with(binding.timerListLinearLayoutView) {
-
             // Update the values for the time and the interval
-            // I'm not sure why, but this function resets all to the default, so i just re-update all of them
-            for (index in 0 until childCount) {
-
-                val timerCard = this.getChildAt(index)
+            for (childCountIndex in 0 until childCount) {
+                Log.d(TAG, "current: ${childCountIndex} out of ${childCount}")
+                val timerCard = this.getChildAt(childCountIndex)
                 val timerText: TextView = timerCard.findViewById(R.id.running_timer_text)
                 val intervalText: TextView = timerCard.findViewById(R.id.running_timer_repeats_text)
 
                 //TODO: Setup a function that takes the int value and converts it to a time string
-                if (index == timerModel.activeTimer) {
-                    timerText.text = getTimeStringFromInt(timerModel.activeTimerSecondsRemaining)
-                } else if (index < timerModel.activeTimer) {
+                if (childCountIndex == timerModel.activeTimer) {
+                    timerText.text = getTimeStringFromInt(setToZeroIfNegative(timerModel.activeTimerSecondsRemaining))
+                    intervalText.text = timerModel.activeIntervalsRemaining.toString()
+                } else if (childCountIndex < timerModel.activeTimer) {
                     timerText.text = getTimeStringFromInt(0)
+                    intervalText.text = "0"
                 } else {
-                    timerText.text = getTimeStringFromInt(timerModel.timerTimeInitList[index])
-                    intervalText.text = timerModel.timerIntervalInitList[index].toString()
+                    timerText.text = getTimeStringFromInt(timerModel.timerTimeInitList[childCountIndex])
+                    intervalText.text = timerModel.timerIntervalInitList[childCountIndex].toString()
+                    print("")
                 }
             }
         }
@@ -137,9 +148,18 @@ class TimerFragment : Fragment() {
 
     // recreate timercard views for when the UI is destroyed
     private fun recreateTimerCardViews() {
+        binding.timerListLinearLayoutView.removeAllViews()
         for (index in 0 until timerModel.timerTimeInitList.size) {
             newTimerCard()
         }
+        setTimersToCurrentValues()
+    }
+
+    // newTimer button was pushed
+    private fun newTimer() {
+        if (timerModel.timerStarted) return
+        if (timerModel.timerCompleted) timerModel.resetAllTimersToInit()
+        newTimerDialog()
     }
 
     // create the dialog popup to enter new timer values
@@ -186,6 +206,7 @@ class TimerFragment : Fragment() {
                 else {
                     timerModel.addNewTimer(timerMinTime, timerSecTime, intervalTime)
                     newTimerCard()
+                    setTimersToCurrentValues()
                 }
             }
 
@@ -199,6 +220,13 @@ class TimerFragment : Fragment() {
         }
     }
 
+    // reset timer button was clicked
+    private fun resetTimer() {
+        if (timerModel.timerStarted) return
+        timerModel.resetAllTimersToInit()
+        recreateTimerCardViews()
+    }
+
     // convert an int (seconds) to a time string
     private fun getTimeStringFromInt(time: Int) : String{
         val resultInt = time
@@ -209,4 +237,8 @@ class TimerFragment : Fragment() {
         return makeTimeString(minutes, seconds)
     }
 
+    private fun setToZeroIfNegative(theInt: Int): Int {
+        return if (theInt < 0) 0
+        else theInt
+    }
 }
